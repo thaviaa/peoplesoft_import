@@ -44,7 +44,8 @@ Save. This should now be the **only** field map with Coalesce checked.
 
 In the **Transform Scripts** related list:
 
-1. **onBefore, order 100** (emplid/email lookup) → **Active = false**. It runs after matching and has no effect.
+1. **onBefore, order 100** (emplid/email lookup, sys_id `4e2c5070c3b01a1057c46625990131af`) → **Active = false**. It runs after matching and has no effect.
+   Direct: `sys_transform_script.do?sys_id=4e2c5070c3b01a1057c46625990131af`
 2. **New** transform script:
    - When: **onBefore**
    - Order: **90**
