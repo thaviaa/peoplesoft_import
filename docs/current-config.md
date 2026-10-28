@@ -13,7 +13,7 @@ Snapshot of `sys_transform_map` `b54eb56bc3105e9057c46625990131db` as of 2026-10
 | ✅ | `u_emplid` | `u_employee_id` | |
 | ✅ | `u_emailid` | `user_name` | To be removed — Entra owns User ID/Email |
 | | `u_deptid` | `u_business_unit` | |
-| | `u_name_display` | `name` | |
+| | `u_name_display` | `name` | To be replaced — value includes quoted nickname (e.g. `Michael "Scott" Newell`); use `transform/name_source_script.js` |
 | | `u_last_name` | `last_name` | |
 | | `u_descr` | `location` | |
 | | [script] | `first_name` | `u_pref_first_name` if set, else `u_first_name` |

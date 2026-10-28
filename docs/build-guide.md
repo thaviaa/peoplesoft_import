@@ -74,12 +74,13 @@ PeopleSoft owns names (it has the preferred first name). If Entra also writes th
 2. Remove or disable the mappings to `first_name`, `last_name` and `name`.
 3. Keep Entra's mappings for `user_name`, `email` and anything else not listed under PeopleSoft in the [field ownership table](../README.md#field-ownership-one-writer-per-field).
 
-### Check: Name vs. preferred first name
+### Replace the Name field map
 
-`name` is mapped from `u_name_display`, but `first_name` uses `u_pref_first_name` when set. Pull a few import rows where `u_pref_first_name` is populated and compare to `u_name_display`:
+PeopleSoft's `NAME_DISPLAY` is the legal name with the nickname in quotes. Example (EMPLID 108673): `Michael "Scott" Newell`, while `PREF_FIRST_NAME` = `Scott`. Mapping it straight to `name` would show `Michael "Scott" Newell` next to First name `Scott`.
 
-- If `u_name_display` already uses the preferred name → no change.
-- If it uses the legal name → replace the `u_name_display → name` map with a source script returning preferred-or-first + `' '` + `u_last_name`.
+1. Open the field map `u_name_display → name`.
+2. Check **Use source script** and paste [`transform/name_source_script.js`](../transform/name_source_script.js). Result: `Scott Newell`.
+3. Leave the `first_name` source script as-is (it already prefers `u_pref_first_name`).
 
 ## 6. Test in dev
 

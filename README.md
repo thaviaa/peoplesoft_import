@@ -45,6 +45,7 @@ docs/
 transform/
   sys_id_coalesce.js         Proposed scripted coalesce (emplid → email fallback)
   onBefore_update_only.js    Proposed onBefore: never insert users (Entra owns identities)
+  name_source_script.js      Proposed Name map: preferred first + last
 diagnostics/                 Background scripts (read-only)
   find_duplicate_names.js
   bucket_duplicates.js
