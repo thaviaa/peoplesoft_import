@@ -53,17 +53,17 @@ In the **Transform Scripts** related list:
    - Script: [`transform/onBefore_skip_no_identifier.js`](../transform/onBefore_skip_no_identifier.js)
 3. Leave **order 110** (location) and **order 120** (department) as-is.
 
-## 5. Point the email field map at Email, not User ID
+## 5. Remove the email field map
 
-After this fix, PeopleSoft will start **updating** users that Entra ID created. The existing map `u_emailid → user_name` would copy PeopleSoft's email into their **User ID**, the value Entra uses for SSO login.
+**Entra ID is the source of truth for User ID and Email.** PeopleSoft must not write either field.
 
-Example: Entra created Jane as `jane.doe@mecknc.gov`; PeopleSoft has `jdoe@mecknc.gov`. The import would change her User ID to `jdoe@…`, SSO would no longer match, and Entra may create yet another record.
+After this fix, PeopleSoft will start **updating** users that Entra created. The existing map `u_emailid → user_name` would overwrite their User ID, the value Entra uses for SSO. Example: Entra created Jane as `jane.doe@mecknc.gov`; PeopleSoft has `jdoe@mecknc.gov`. The import would change her User ID to `jdoe@…`, SSO would stop matching, and Entra may create another record.
 
-**Change:** open the `u_emailid` field map and set Target field = **Email** (`email`) instead of `user_name`.
+**Change:** delete (or, if you want a rollback path, note the sys_id then delete) the field map `u_emailid → user_name`. Do **not** add a `u_emailid → email` map either.
 
-- Entra keeps owning User ID; PeopleSoft fills Email.
-- Matching still works: [`sys_id_coalesce.js`](../transform/sys_id_coalesce.js) checks both `user_name` and `email`.
-- Only leave it as `user_name` if PeopleSoft is meant to be the source of truth for login IDs.
+PeopleSoft's email is still used, but only as a **matching key**: [`sys_id_coalesce.js`](../transform/sys_id_coalesce.js) reads `source.u_emailid` to find the Entra user by `user_name` or `email`. It never writes it.
+
+Side effect: users PeopleSoft creates (no Entra match) will have a blank User ID and Email until Entra provisions them. That's expected; when Entra later creates them, the next PeopleSoft run should match by email, but Entra will have created a separate record first. Cleanup in step 7 covers these.
 
 ## 6. Test in dev
 

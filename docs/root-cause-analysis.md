@@ -50,7 +50,7 @@ From [`diagnostics/confirm_root_cause.js`](../diagnostics/confirm_root_cause.js)
 2. Add a scripted field map → `sys_id`, **Coalesce = true**, using [`transform/sys_id_coalesce.js`](../transform/sys_id_coalesce.js). Matches on employee ID, falls back to email (`user_name` or `email`), else inserts.
 3. Deactivate the onBefore at order 100 (no effect).
 4. Optional: add [`transform/onBefore_skip_no_identifier.js`](../transform/onBefore_skip_no_identifier.js) so rows with no EMPLID and no email never insert.
-5. Change the field map `u_emailid → user_name` to `u_emailid → email`. After the fix, PeopleSoft will update users Entra created; writing PeopleSoft's email into **User ID** would overwrite the Entra login (e.g. `jane.doe@` → `jdoe@`) and break SSO matching. Entra keeps owning User ID; PeopleSoft fills Email. Matching still works because the coalesce checks both fields.
+5. **Delete the `u_emailid → user_name` field map.** Entra ID is the source of truth for User ID and Email, so PeopleSoft must not write either. PeopleSoft's email is still used as a *matching key* in the coalesce script (read from the source row, never written). Otherwise, once PeopleSoft starts updating Entra-created users, it would overwrite the Entra login (e.g. `jane.doe@` → `jdoe@`) and break SSO matching.
 
 ## Validation
 

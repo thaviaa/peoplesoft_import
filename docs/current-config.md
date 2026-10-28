@@ -11,7 +11,7 @@ Snapshot of `sys_transform_map` `b54eb56bc3105e9057c46625990131db` as of 2026-10
 | Coalesce | Source | Target | Notes |
 |---|---|---|---|
 | ✅ | `u_emplid` | `u_employee_id` | |
-| ✅ | `u_emailid` | `user_name` | |
+| ✅ | `u_emailid` | `user_name` | To be removed — Entra owns User ID/Email |
 | | `u_deptid` | `u_business_unit` | |
 | | `u_name_display` | `name` | |
 | | `u_last_name` | `last_name` | |
