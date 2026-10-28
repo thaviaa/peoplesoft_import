@@ -53,14 +53,17 @@ In the **Transform Scripts** related list:
    - Script: [`transform/onBefore_skip_no_identifier.js`](../transform/onBefore_skip_no_identifier.js)
 3. Leave **order 110** (location) and **order 120** (department) as-is.
 
-## 5. Decide who owns `user_name`
+## 5. Point the email field map at Email, not User ID
 
-With the new coalesce, PeopleSoft will start **updating** users Entra ID created. The existing map `u_emailid → user_name` would overwrite the Entra UPN.
+After this fix, PeopleSoft will start **updating** users that Entra ID created. The existing map `u_emailid → user_name` would copy PeopleSoft's email into their **User ID**, the value Entra uses for SSO login.
 
-- **If Entra owns User ID (recommended):** edit the field map so target = **Email** (`email`) instead of `user_name`.
-- **If PeopleSoft owns User ID:** leave it, and confirm PeopleSoft email always equals the Entra UPN.
+Example: Entra created Jane as `jane.doe@mecknc.gov`; PeopleSoft has `jdoe@mecknc.gov`. The import would change her User ID to `jdoe@…`, SSO would no longer match, and Entra may create yet another record.
 
-Confirm with the Entra/SCIM config before choosing.
+**Change:** open the `u_emailid` field map and set Target field = **Email** (`email`) instead of `user_name`.
+
+- Entra keeps owning User ID; PeopleSoft fills Email.
+- Matching still works: [`sys_id_coalesce.js`](../transform/sys_id_coalesce.js) checks both `user_name` and `email`.
+- Only leave it as `user_name` if PeopleSoft is meant to be the source of truth for login IDs.
 
 ## 6. Test in dev
 
