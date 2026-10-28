@@ -13,9 +13,11 @@ _Last updated: 2026-10-28_
   - Name source script (`07e24dfe…`)
   - onBefore 90 update-only (`4103ecd8…`)
   - Old onBefore 100 deactivated (`4e2c5070…`)
+  - Stray onBefore 100 with pasted coalesce code deleted (`e3ef5094…`)
+- Update set reviewed: 7 records, all match the build guide.
 
 ## Open items
-1. **Delete stray transform script** `e3ef5094c3185f1457c466259901318b` (onBefore 100, active) — contains the coalesce code pasted as a transform script by mistake.
+1. ~~Delete stray transform script `e3ef5094…`~~ — **done** (DELETE captured in update set, reviewed 2026-10-28).
 2. **Data source connection failing in dev** (blocks testing):
    `ORA-12505, TNS:listener does not currently know of SID given in connect descriptor`.
    Data source has Oracle SID `psprd`, but the Connection URL uses `SERVICE_NAME=PSDB`; the MID Server appears to be connecting by SID. Check that the custom Connection URL is used / clear SID, and confirm with DBA whether `psprd` is registered on `pspr-scan`/`psdr-scan`. Unrelated to the transform changes.
