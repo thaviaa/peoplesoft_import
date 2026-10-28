@@ -92,6 +92,16 @@ PeopleSoft's `NAME_DISPLAY` is the legal name with the nickname in quotes. Examp
 6. Verify no new users: `sys_user_list.do?sysparm_query=sys_created_onONToday@javascript:gs.beginningOfToday()@javascript:gs.endOfToday()^sys_created_by=<import user>`
 7. Spot-check that the test users' location, department, business unit, and name updated correctly on the **surviving** record.
 
+### If the test load fails to connect (ORA-12505)
+
+`ORA-12505: listener does not currently know of SID` happens at the JDBC connection, before any transform runs, so it is not caused by these changes. Compare the dev and prod **Peoplesoft import** data source records (MID Server, Server, Oracle SID, Connection URL). Clones often reset the MID Server or connection fields.
+
+To test the transform without a new load, reuse an existing import set:
+
+1. **System Import Sets → Import Sets**, filter Table = `x_meug_peoplesof_0_peoplesoft_import`.
+2. Open a recent Loaded/Processed set → **Transform** (or **Reprocess**) → select **Peoplesoft Employee import**.
+3. Expect rows to show **updated** (matched) or **ignored** (no match), never **inserted**.
+
 ## 7. Clean up existing duplicates
 
 Do **after** the fix is verified, so the next import doesn't recreate them. See the cleanup steps in [root-cause-analysis.md](root-cause-analysis.md#cleanup-after-fix-is-in-place). Deactivate, don't delete.
