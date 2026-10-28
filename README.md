@@ -4,6 +4,8 @@ Scoped app **PeopleSoft Integration** (`x_meug_peoplesof_0`) on Mecklenburg Coun
 
 Pulls employee, location and business unit data from PeopleSoft into ServiceNow.
 
+**Design intent:** PeopleSoft is the source of truth for **employee location**. Entra ID is the source of truth for **user identity** (User ID, Email) and creates all users. The employee import is **update-only**: it matches existing users and enriches them; it never creates users.
+
 ## Data source
 
 | Setting | Value |
@@ -32,7 +34,7 @@ docs/
   current-config.md          Employee transform map as configured today
 transform/
   sys_id_coalesce.js         Proposed scripted coalesce (emplid → email fallback)
-  onBefore_skip_no_identifier.js  Proposed onBefore: skip inserts with no EMPLID/email
+  onBefore_update_only.js    Proposed onBefore: never insert users (Entra owns identities)
 diagnostics/                 Background scripts (read-only)
   find_duplicate_names.js
   bucket_duplicates.js

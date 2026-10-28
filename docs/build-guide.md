@@ -50,7 +50,8 @@ In the **Transform Scripts** related list:
    - When: **onBefore**
    - Order: **90**
    - Active: true
-   - Script: [`transform/onBefore_skip_no_identifier.js`](../transform/onBefore_skip_no_identifier.js)
+   - Script: [`transform/onBefore_update_only.js`](../transform/onBefore_update_only.js)
+   - Effect: rows that match no existing user are **skipped**, never inserted. PeopleSoft only updates users Entra created.
 3. Leave **order 110** (location) and **order 120** (department) as-is.
 
 ## 5. Remove the email field map
@@ -63,7 +64,7 @@ After this fix, PeopleSoft will start **updating** users that Entra created. The
 
 PeopleSoft's email is still used, but only as a **matching key**: [`sys_id_coalesce.js`](../transform/sys_id_coalesce.js) reads `source.u_emailid` to find the Entra user by `user_name` or `email`. It never writes it.
 
-Side effect: users PeopleSoft creates (no Entra match) will have a blank User ID and Email until Entra provisions them. That's expected; when Entra later creates them, the next PeopleSoft run should match by email, but Entra will have created a separate record first. Cleanup in step 7 covers these.
+Because the import is update-only (step 4), PeopleSoft no longer creates users with a blank User ID. Someone in PeopleSoft without an Entra account is skipped until Entra provisions them; the next import run then matches them by email and sets their location and employee ID.
 
 ## 6. Test in dev
 

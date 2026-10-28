@@ -49,7 +49,7 @@ From [`diagnostics/confirm_root_cause.js`](../diagnostics/confirm_root_cause.js)
 1. Remove **Coalesce** from `u_emplid → u_employee_id` and `u_emailid → user_name` (keep them as normal field maps).
 2. Add a scripted field map → `sys_id`, **Coalesce = true**, using [`transform/sys_id_coalesce.js`](../transform/sys_id_coalesce.js). Matches on employee ID, falls back to email (`user_name` or `email`), else inserts.
 3. Deactivate the onBefore at order 100 (no effect).
-4. Optional: add [`transform/onBefore_skip_no_identifier.js`](../transform/onBefore_skip_no_identifier.js) so rows with no EMPLID and no email never insert.
+4. Add [`transform/onBefore_update_only.js`](../transform/onBefore_update_only.js) (onBefore, order 90): the import is **update-only**. PeopleSoft is the source of truth for employee location, not identity; Entra creates users. Unmatched rows are skipped, which removes the duplicate path entirely.
 5. **Delete the `u_emailid → user_name` field map.** Entra ID is the source of truth for User ID and Email, so PeopleSoft must not write either. PeopleSoft's email is still used as a *matching key* in the coalesce script (read from the source row, never written). Otherwise, once PeopleSoft starts updating Entra-created users, it would overwrite the Entra login (e.g. `jane.doe@` → `jdoe@`) and break SSO matching.
 
 ## Validation
