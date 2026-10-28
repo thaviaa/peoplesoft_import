@@ -27,6 +27,7 @@ Pulls employee, location and business unit data from PeopleSoft into ServiceNow.
 
 ```
 docs/
+  build-guide.md             Step-by-step fix for the Employee transform map
   root-cause-analysis.md     Duplicate sys_user defect — cause, fix, cleanup plan
   current-config.md          Employee transform map as configured today
 transform/
