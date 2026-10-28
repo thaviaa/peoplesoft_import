@@ -6,6 +6,16 @@ Pulls employee, location and business unit data from PeopleSoft into ServiceNow.
 
 **Design intent:** PeopleSoft is the source of truth for **employee location**. Entra ID is the source of truth for **user identity** (User ID, Email) and creates all users. The employee import is **update-only**: it matches existing users and enriches them; it never creates users.
 
+### Field ownership (one writer per field)
+
+| Field | Owner |
+|---|---|
+| User ID (`user_name`), Email | Entra ID |
+| First name (preferred), Last name, Name | PeopleSoft |
+| Employee ID, Location, Building, Department, Business unit | PeopleSoft |
+
+PeopleSoft owns names because it carries the preferred first name (`u_pref_first_name`). Entra provisioning must **not** write `first_name`, `last_name` or `name`.
+
 ## Data source
 
 | Setting | Value |
