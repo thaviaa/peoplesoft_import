@@ -37,6 +37,7 @@ diagnostics/                 Background scripts (read-only)
   find_duplicate_names.js
   bucket_duplicates.js
   confirm_root_cause.js
+  pair_ps_entra_records.js
   dump_transform_maps.js
 ```
 

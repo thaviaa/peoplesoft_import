@@ -32,6 +32,18 @@ The onBefore script (order 100) appears intended as an "employee ID, else email"
 
 Header settings: `create_new_record_on_empty_coalesce_fields = false`, `run_business_rules = true`, `run_script = false`. Last modified 2024-09-13.
 
+## Baseline (meckncdev, 2026-10-28)
+
+From [`diagnostics/confirm_root_cause.js`](../diagnostics/confirm_root_cause.js):
+
+| Metric | Count | Meaning |
+|---|---|---|
+| Employee IDs on 2+ users | **224** | Same EMPLID re-inserted when email didn't match (AND-coalesce) |
+| Users with Employee ID but blank User ID | **3,134** | PeopleSoft-created records; many likely duplicate an Entra user |
+| Active users with User ID but no Employee ID | **848** | Entra-created users PeopleSoft never matched (includes service/contractor accounts) |
+
+**Important:** the new coalesce matches on employee ID first, so existing pairs will keep updating the PeopleSoft copy (blank User ID), not the Entra user. The fix stops *new* duplicates; existing pairs must be merged in cleanup by moving `u_employee_id` onto the Entra user and deactivating the PeopleSoft copy. Size this with [`diagnostics/pair_ps_entra_records.js`](../diagnostics/pair_ps_entra_records.js).
+
 ## Fix
 
 1. Remove **Coalesce** from `u_emplid → u_employee_id` and `u_emailid → user_name` (keep them as normal field maps).
