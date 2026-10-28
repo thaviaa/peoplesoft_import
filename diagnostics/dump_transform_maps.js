@@ -33,7 +33,7 @@ while (maps.next()) {
 
     var ts = new GlideRecord('sys_transform_script');
     ts.addQuery('map', maps.sys_id);
-    ts.addActiveQuery();
+    ts.addQuery('active', true);
     ts.orderBy('order');
     ts.query();
     while (ts.next()) {

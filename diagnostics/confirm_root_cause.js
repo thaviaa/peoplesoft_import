@@ -19,7 +19,7 @@ blank.query();
 blank.next();
 
 var noEmp = new GlideAggregate('sys_user');
-noEmp.addActiveQuery();
+noEmp.addQuery('active', true);
 noEmp.addNullQuery('u_employee_id');
 noEmp.addNotNullQuery('user_name');
 noEmp.addAggregate('COUNT');
