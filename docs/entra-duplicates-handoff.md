@@ -27,6 +27,8 @@ Copy everything after the `CSV` line into a spreadsheet. Columns:
 
 `suggested` is a starting point only: **KEEP** = active, then most recent login, then newest; others **RETIRE**.
 
+For an always-current list in ServiceNow, see [entra-duplicate-report-setup.md](entra-duplicate-report-setup.md).
+
 ## Decisions needed from the Identity team, per group
 
 1. Which Entra object is current for the person (the one ServiceNow should keep).

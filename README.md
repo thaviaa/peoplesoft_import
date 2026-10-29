@@ -44,10 +44,13 @@ docs/
   root-cause-analysis.md     Duplicate sys_user defect — cause, fix, cleanup plan
   current-config.md          Employee transform map as configured today
   entra-duplicates-handoff.md  Follow-up for the Identity team: Entra-side duplicate users
+  entra-duplicate-report-setup.md  How to build the "Entra duplicate users" ServiceNow report
 transform/
   sys_id_coalesce.js         Proposed scripted coalesce (emplid → email fallback)
   onBefore_update_only.js    Proposed onBefore: never insert users (Entra owns identities)
   name_source_script.js      Proposed Name map: preferred first + last
+servicenow/
+  DuplicateUserUtil.js       Script Include behind the Entra duplicate report filter
 cleanup/
   remove_ps_blank_userid_users.js  Re-point refs to Entra user, then delete PS blank-User-ID copies
 diagnostics/                 Background scripts (read-only)
