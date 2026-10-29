@@ -40,7 +40,7 @@ Reports → Create new
 | Name | Entra duplicate users |
 | Source type / Table | Table → User [sys_user] |
 | Type | List |
-| Condition | **Sys ID** · **is (dynamic)** · **Entra duplicate users** |
+| Condition | **Sys ID** · **is (dynamic)** · **Entra duplicate users** (or **is one of** · `javascript:new DuplicateUserUtil().getEntraDuplicateIds()`) |
 | Group by | Name |
 | Sort | Name, then Active (descending) |
 | Columns | Name, User ID, Email, Employee ID, Active, Last login time, Created, Created by, Source |
@@ -52,15 +52,18 @@ Optional count tile for a dashboard: same condition, Type = **Single Score**, na
 
 ## 3b. Alternative: Platform Analytics Workspace (Visualization designer)
 
+The designer treats **Sys ID** as a string field, so it does not offer **is (dynamic)**. Use a script value instead:
+
 1. Add data source → table **User [sys_user]**.
-2. In **Filters → Conditions**: Field **Sys ID** · Operator **is (dynamic)** · Value **Entra duplicate users**.
+2. In **Filters → Conditions**: Field **Sys ID** · Operator **is one of** (top of the operator list) ·
+   Value `javascript:new DuplicateUserUtil().getEntraDuplicateIds()`
 3. **Run**: the preview count should drop from all users (~14,000) to the duplicate set (a few hundred).
 4. Optional: **Save as predefined condition** so other visualizations can reuse it.
 5. **Add this source**, then pick a List visualization and the columns above.
 
-If **is (dynamic)** isn't offered on Sys ID, open the Dynamic Filter Option and check that it's Active and
-"Available for filter", and that the Field type matches what the designer expects for Sys ID
-(try Field type **Sys ID (GUID)** if Reference doesn't show). As a fallback, build the classic report in step 3.
+If the count doesn't drop, confirm the Script Include is **Client callable / Sandbox enabled** and
+**Accessible from: All application scopes**. If the designer still won't evaluate it, use the classic report (step 3),
+which accepts the same `javascript:` value with **is one of**.
 
 ## Notes
 
