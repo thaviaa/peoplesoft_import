@@ -14,6 +14,8 @@
  *      CONFLICT -> Entra user already has a different employee ID: skipped, reported.
  *      UNMATCHED, no references  -> deleted (if DELETE_UNMATCHED_UNREFERENCED).
  *      UNMATCHED, has references -> skipped, reported for manual review.
+ *   Records owned by the user (notification devices/preferences, live notifications)
+ *   are not treated as references; they are deleted together with the PS copy.
  *
  * ALWAYS run with MODE = 'report' first and review the output.
  * Before MODE = 'execute', export the targets as XML (backup):
@@ -35,12 +37,16 @@ var SKIP_TABLES = ['sys_audit', 'sys_history_line', 'sys_history_set', 'syslog',
     'sys_journal_field', 'sys_attachment', 'sys_user_preference', 'sys_user_session',
     'sys_rollback_sequence', 'sys_import_set_row', 'sys_update_xml', 'sys_cache_flush'];
 var SKIP_PREFIXES = ['ts_', 'v_', 'syslog', 'sys_rollback', 'sys_history', 'sys_audit'];
+// Records that belong to the user itself (auto-created per user). Not counted as
+// references and never re-pointed; deleted together with the PS copy.
+var OWNED_TABLES = ['cmn_notif_device', 'cmn_notif_message', 'live_notification'];
 
 var execute = (MODE === 'execute');
 var out = [];
 var stats = { targets: 0, matched: 0, conflict: 0, unmatchedUnref: 0, unmatchedRef: 0,
+    noImportRow: 0, noEmail: 0, emailNoEntra: 0, ownedDeleted: 0,
     refsRepointed: 0, groupsMoved: 0, rolesMoved: 0, emplidCopied: 0, deleted: 0 };
-var samples = { matched: [], conflict: [], unmatchedUnref: [], unmatchedRef: [] };
+var samples = { matched: [], conflict: [], unmatchedUnref: [], unmatchedRef: [], emailNoEntra: [] };
 var refsByField = {};
 
 function pushSample(bucket, line) { if (samples[bucket].length < SAMPLE) samples[bucket].push(line); }
@@ -73,12 +79,13 @@ ids.forEach(function (id) {
     var c = copies[id];
     var row = new GlideRecord(importTable);
     row.addQuery('u_emplid', c.emplid);
-    row.addNotNullQuery('u_emailid');
     row.orderByDesc('sys_created_on');
     row.setLimit(1);
     row.query();
-    if (!row.next()) return;
-    var email = row.getValue('u_emailid');
+    if (!row.next()) { c.reason = 'noImportRow'; return; }
+    var email = (row.getValue('u_emailid') || '').trim();
+    if (!email) { c.reason = 'noEmail'; return; }
+    c.psEmail = email;
 
     var u = new GlideRecord('sys_user');
     u.addQuery('user_name', email).addOrCondition('email', email);
@@ -87,7 +94,7 @@ ids.forEach(function (id) {
     u.orderByDesc('active');
     u.setLimit(1);
     u.query();
-    if (!u.next()) return;
+    if (!u.next()) { c.reason = 'emailNoEntra'; return; }
 
     var existing = u.getValue('u_employee_id');
     c.survivor = u.getUniqueValue();
@@ -138,6 +145,12 @@ refFields.forEach(function (fd) {
             var oldId = gr.getValue(fd.f);
             var c = copies[oldId];
             if (!c) continue;
+            if (OWNED_TABLES.indexOf(fd.t) > -1) {
+                (c.owned = c.owned || []).push([fd.t, gr.getUniqueValue()]);
+                var ok = fd.t + '.' + fd.f + ' (owned, deleted with user)';
+                refsByField[ok] = (refsByField[ok] || 0) + 1;
+                continue;
+            }
             c.refs = (c.refs || 0) + 1;
             var key = fd.t + '.' + fd.f;
             refsByField[key] = (refsByField[key] || 0) + 1;
@@ -159,6 +172,15 @@ refFields.forEach(function (fd) {
     }
 });
 
+function deleteCopy(id, c) {
+    (c.owned || []).forEach(function (o) {
+        var r = new GlideRecord(o[0]);
+        if (r.get(o[1])) { r.deleteRecord(); stats.ownedDeleted++; }
+    });
+    var del = new GlideRecord('sys_user');
+    if (del.get(id)) { del.deleteRecord(); stats.deleted++; }
+}
+
 // ---- 4. Classify, copy employee ID, delete ----
 ids.forEach(function (id) {
     var c = copies[id];
@@ -174,19 +196,26 @@ ids.forEach(function (id) {
                 s.update();
                 stats.emplidCopied++;
             }
-            var del = new GlideRecord('sys_user');
-            if (del.get(id)) { del.deleteRecord(); stats.deleted++; }
+            deleteCopy(id, c);
         }
-    } else if (c.conflict) {
+        return;
+    }
+
+    if (c.conflict) {
         stats.conflict++;
         pushSample('conflict', label + ' -> ' + c.survivorUid + ' already has EMPLID ' + c.conflict);
-    } else if (!c.refs) {
+        return;
+    }
+
+    // Unmatched
+    if (c.reason) stats[c.reason]++;
+    if (c.reason === 'emailNoEntra') {
+        pushSample('emailNoEntra', c.name + ' | EMPLID ' + c.emplid + ' | PS email ' + c.psEmail);
+    }
+    if (!c.refs) {
         stats.unmatchedUnref++;
         pushSample('unmatchedUnref', label);
-        if (execute && DELETE_UNMATCHED_UNREFERENCED) {
-            var del2 = new GlideRecord('sys_user');
-            if (del2.get(id)) { del2.deleteRecord(); stats.deleted++; }
-        }
+        if (execute && DELETE_UNMATCHED_UNREFERENCED) deleteCopy(id, c);
     } else {
         stats.unmatchedRef++;
         pushSample('unmatchedRef', label);
@@ -200,11 +229,15 @@ out.push('  matched to Entra user (re-point + delete):        ' + stats.matched)
 out.push('  conflict (Entra user has different EMPLID, skip):  ' + stats.conflict);
 out.push('  unmatched, no references (' + (DELETE_UNMATCHED_UNREFERENCED ? 'delete' : 'skip') + '):        ' + stats.unmatchedUnref);
 out.push('  unmatched, has references (skip, review):         ' + stats.unmatchedRef);
+out.push('\nWhy unmatched (no Entra user found):');
+out.push('  EMPLID not in import set:                ' + stats.noImportRow);
+out.push('  PeopleSoft has no email:                 ' + stats.noEmail);
+out.push('  PS email matches no Entra User ID/Email: ' + stats.emailNoEntra);
 if (execute) {
     out.push('\nExecuted: refs re-pointed=' + stats.refsRepointed + ', groups moved=' + stats.groupsMoved +
-        ', roles moved=' + stats.rolesMoved + ', employee IDs copied=' + stats.emplidCopied + ', users deleted=' + stats.deleted);
+        ', roles moved=' + stats.rolesMoved + ', employee IDs copied=' + stats.emplidCopied + ', owned records deleted=' + stats.ownedDeleted + ', users deleted=' + stats.deleted);
 }
-out.push('\nReferences to PS copies by table.field:');
+out.push('\nReferences to PS copies by table.field (refs = everything except owned):');
 Object.keys(refsByField).sort(function (a, b) { return refsByField[b] - refsByField[a]; })
     .forEach(function (k) { out.push('  ' + k + ': ' + refsByField[k]); });
 for (var b in samples) {
