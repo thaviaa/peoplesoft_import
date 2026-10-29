@@ -60,7 +60,10 @@ Use a **predefined condition** (Report Source) that stores the script filter ins
    `sys_idINjavascript:new DuplicateUserUtil().getEntraDuplicateIds()`.
 2. Add data source → table **User [sys_user]**. Under **Predefined conditions**, select **Entra duplicate users**.
 3. **Run**: the preview count should drop from all users (~14,000) to the duplicate set (a few hundred).
-4. **Add this source**, then pick a List visualization and the columns above.
+4. **Add this source** (or **Apply** when editing), pick a List visualization and the columns above
+   (leave out Password, MFA, Web service access, Schedule), then **Save**. The visualization showed
+   "No data available" until it was saved. Verified in dev 2026-10-29: 353 records.
+5. Sort by **Employee Id**, then **Name**, so each person's records sit together.
 
 If the conditions show **Sys ID in NULL** or the count is 0, the script returned nothing in the filter context:
 
