@@ -60,11 +60,23 @@ From [`diagnostics/confirm_root_cause.js`](../diagnostics/confirm_root_cause.js)
 
 ## Cleanup (after fix is in place)
 
-1. Bucket duplicates with [`diagnostics/bucket_duplicates.js`](../diagnostics/bucket_duplicates.js).
-2. For each confirmed duplicate, pick the surviving record (active, Entra-linked, has User ID).
-3. Re-point references on the retiring record: tasks (`assigned_to`, `opened_by`, `caller_id`), assets (`alm_asset.assigned_to`), group memberships (`sys_user_grmember`), roles (`sys_user_has_role`), approvals.
-4. Copy `u_employee_id` to the surviving record, then **deactivate** (don't delete) the retiring one.
-5. Sign-off before running cleanup in production.
+Decision: PeopleSoft-created users with a blank User ID are **removed** (deleted), not deactivated.
+
+Script: [`cleanup/remove_ps_blank_userid_users.js`](../cleanup/remove_ps_blank_userid_users.js) (Global scope).
+
+1. Run the fixed, update-only import first so deleted copies are never recreated.
+2. Export the targets as XML for backup: `sys_user_list.do?sysparm_query=user_nameISEMPTY^u_employee_idISNOTEMPTY`.
+3. Run with `MODE = 'report'` and review the buckets and reference counts.
+4. Run with `MODE = 'execute'` and `MAX_USERS = 25`; spot-check the Entra users (tasks, assets, groups now on them; Employee ID set). Then run the rest.
+5. For each PS copy the script:
+   - **matched** to an Entra user by PeopleSoft email → re-points all references (tasks, assets, approvals, group memberships, direct roles) to the Entra user, copies `u_employee_id` onto it, deletes the PS copy
+   - **conflict** (Entra user already has a different Employee ID) → skipped, reported
+   - **unmatched, no references** → deleted
+   - **unmatched, has references** → skipped, reported for manual review
+6. Re-run `confirm_root_cause.js`: "blank User ID" should drop to the skipped counts; "duplicate Employee IDs" should drop accordingly.
+7. Run the import again; the Entra users now get location, department and names from PeopleSoft.
+
+Out of scope for this script: same-person duplicates where **both** records came from Entra (e.g. UPN change, `Adam.Odza@` and `Abduraman.Odza@`). Handle separately.
 
 ## Acceptance criteria
 

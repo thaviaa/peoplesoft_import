@@ -21,6 +21,6 @@ _Last updated: 2026-10-28_
 2. **Data source connection failing in dev** (blocks testing):
    `ORA-12505, TNS:listener does not currently know of SID given in connect descriptor`.
    Data source has Oracle SID `psprd`, but the Connection URL uses `SERVICE_NAME=PSDB`; the MID Server appears to be connecting by SID. Check that the custom Connection URL is used / clear SID, and confirm with DBA whether `psprd` is registered on `pspr-scan`/`psdr-scan`. Unrelated to the transform changes.
-3. Run [`diagnostics/pair_ps_entra_records.js`](../diagnostics/pair_ps_entra_records.js) to size the merge of existing PS/Entra duplicate pairs; then write the merge script for the `paired` bucket.
+3. Cleanup decided: **delete** PS-created blank-User-ID users using [`cleanup/remove_ps_blank_userid_users.js`](../cleanup/remove_ps_blank_userid_users.js) (report mode first). Optionally size first with [`diagnostics/pair_ps_entra_records.js`](../diagnostics/pair_ps_entra_records.js).
 4. Remove `first_name` / `last_name` / `name` from Entra → ServiceNow provisioning mappings (outside this update set; needs Entra app owner).
 5. Dev testing per [build-guide.md](build-guide.md) step 6, then cleanup (step 7) and promotion (step 8).
