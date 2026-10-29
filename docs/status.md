@@ -25,6 +25,8 @@ Follow-up: 3,044 PeopleSoft rows have no email, so the import can't match those 
 
 Final report before execute (dev, 2026-10-29 10:29): 92 matched (merge), 3,023 unmatched no refs (delete), 19 unmatched with refs (keep), 0 conflicts.
 
+Test batch executed (dev, 2026-10-29 10:34, MAX_USERS=25): 25 users deleted, 29 owned records deleted, references re-pointed (task.opened_by, asmt_assessment_instance.user). Includes merges for Tiffany Gates, Victoria Hafele, Kelsey Brooks, Stephanie Johnson.
+
 ## Open items
 1. ~~Delete stray transform script `e3ef5094…`~~ — **done** (DELETE captured in update set, reviewed 2026-10-28).
 2. **Data source connection failing in dev** (blocks testing):
