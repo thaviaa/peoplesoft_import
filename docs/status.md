@@ -30,6 +30,9 @@ Test batch executed (dev, 2026-10-29 10:34, MAX_USERS=25): 25 users deleted, 29 
 Full cleanup executed (dev, 2026-10-29, finished 11:49 ET): 3,090 users deleted (88 merged into Entra users + 3,002 unreferenced), 606 references re-pointed, 3 employee IDs copied (manual pairs), 3,163 owned records deleted. 19 kept by design (different person / no Entra account).
 Next in dev: confirm 19 remain, re-run confirm_root_cause.js, run the import again and validate_import_run.js.
 
+Post-cleanup confirm_root_cause.js (dev, 11:52 ET): Employee IDs on 2+ users 137 (was 224); blank User ID 19 (was 3,134); active users with no Employee ID 845 (was 848).
+Remaining 137 duplicate employee IDs are between users that both have a User ID (Entra-side duplicates, e.g. Nicole.Johnson@ / Nicole.Johnson2@ both EMPLID 128160). Separate cleanup; the coalesce already prefers the active record.
+
 ## Open items
 1. ~~Delete stray transform script `e3ef5094…`~~ — **done** (DELETE captured in update set, reviewed 2026-10-28).
 2. **Data source connection failing in dev** (blocks testing):
