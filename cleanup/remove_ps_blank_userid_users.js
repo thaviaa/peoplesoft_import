@@ -32,6 +32,12 @@ var DELETE_UNMATCHED_UNREFERENCED = true;
 var ONLY_CREATED_BY = '';                // optional, e.g. 'admin' to limit to the import user
 var SAMPLE = 10;
 
+// Manual pairs for copies the script can't match by email (e.g. no email in
+// PeopleSoft). Fill from the "Review list" output after confirming each pair.
+//   'PS copy sys_id': 'Entra user sys_id'
+var MANUAL_MAP = {
+};
+
 var importTable = 'x_meug_peoplesof_0_peoplesoft_import';
 var SKIP_TABLES = ['sys_audit', 'sys_history_line', 'sys_history_set', 'syslog', 'sys_email',
     'sys_journal_field', 'sys_attachment', 'sys_user_preference', 'sys_user_session',
@@ -44,7 +50,7 @@ var OWNED_TABLES = ['cmn_notif_device', 'cmn_notif_message', 'live_notification'
 var execute = (MODE === 'execute');
 var out = [];
 var stats = { targets: 0, matched: 0, conflict: 0, unmatchedUnref: 0, unmatchedRef: 0,
-    noImportRow: 0, noEmail: 0, emailNoEntra: 0, ownedDeleted: 0,
+    noImportRow: 0, noEmail: 0, emailNoEntra: 0, manualMapInvalid: 0, ownedDeleted: 0,
     refsRepointed: 0, groupsMoved: 0, rolesMoved: 0, emplidCopied: 0, deleted: 0 };
 var samples = { matched: [], conflict: [], unmatchedUnref: [], unmatchedRef: [], emailNoEntra: [] };
 var refsByField = {};
@@ -77,6 +83,17 @@ stats.targets = ids.length;
 var repointMap = {}; // PS copy sys_id -> Entra user sys_id
 ids.forEach(function (id) {
     var c = copies[id];
+    if (MANUAL_MAP[id]) {
+        var m = new GlideRecord('sys_user');
+        if (m.get(MANUAL_MAP[id]) && m.getValue('user_name')) {
+            c.survivor = m.getUniqueValue();
+            c.survivorUid = m.getValue('user_name') + ' [manual]';
+            var mEmp = m.getValue('u_employee_id');
+            if (mEmp && mEmp !== c.emplid) c.conflict = mEmp; else repointMap[id] = c.survivor;
+            return;
+        }
+        c.reason = 'manualMapInvalid';
+    }
     var row = new GlideRecord(importTable);
     row.addQuery('u_emplid', c.emplid);
     row.orderByDesc('sys_created_on');
@@ -181,6 +198,8 @@ function deleteCopy(id, c) {
     if (del.get(id)) { del.deleteRecord(); stats.deleted++; }
 }
 
+var review = [];
+
 // ---- 4. Classify, copy employee ID, delete ----
 ids.forEach(function (id) {
     var c = copies[id];
@@ -219,6 +238,7 @@ ids.forEach(function (id) {
     } else {
         stats.unmatchedRef++;
         pushSample('unmatchedRef', label);
+        review.push(id);
     }
 });
 
@@ -233,6 +253,7 @@ out.push('\nWhy unmatched (no Entra user found):');
 out.push('  EMPLID not in import set:                ' + stats.noImportRow);
 out.push('  PeopleSoft has no email:                 ' + stats.noEmail);
 out.push('  PS email matches no Entra User ID/Email: ' + stats.emailNoEntra);
+if (stats.manualMapInvalid) out.push('  MANUAL_MAP target invalid / no User ID:  ' + stats.manualMapInvalid);
 if (execute) {
     out.push('\nExecuted: refs re-pointed=' + stats.refsRepointed + ', groups moved=' + stats.groupsMoved +
         ', roles moved=' + stats.rolesMoved + ', employee IDs copied=' + stats.emplidCopied + ', owned records deleted=' + stats.ownedDeleted + ', users deleted=' + stats.deleted);
@@ -240,6 +261,26 @@ if (execute) {
 out.push('\nReferences to PS copies by table.field (refs = everything except owned):');
 Object.keys(refsByField).sort(function (a, b) { return refsByField[b] - refsByField[a]; })
     .forEach(function (k) { out.push('  ' + k + ': ' + refsByField[k]); });
+// Full review list: unmatched copies that still have references, with
+// same-name users that have a User ID (likely the Entra record).
+out.push('\nReview list (unmatched, has references): ' + review.length);
+review.forEach(function (id) {
+    var c = copies[id];
+    out.push('  ' + c.name + ' | EMPLID ' + c.emplid + ' | PS copy ' + id + ' | refs=' + c.refs + ' | reason=' + (c.reason || '?'));
+    var cand = new GlideRecord('sys_user');
+    cand.addQuery('name', c.name);
+    cand.addNotNullQuery('user_name');
+    cand.orderByDesc('active');
+    cand.query();
+    if (!cand.hasNext()) out.push('      no same-name user with a User ID');
+    while (cand.next()) {
+        out.push('      candidate: ' + cand.getValue('user_name') + ' (' + cand.getUniqueValue() + ')' +
+            ' | active=' + cand.getValue('active') +
+            ' | emplid=' + (cand.getValue('u_employee_id') || '-') +
+            ' | created_by=' + cand.getValue('sys_created_by'));
+    }
+});
+
 for (var b in samples) {
     out.push('\nSample ' + b + ':\n  ' + (samples[b].join('\n  ') || '(none)'));
 }
