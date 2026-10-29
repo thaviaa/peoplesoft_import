@@ -6,8 +6,10 @@
  *          (the copies the old AND-coalesce created).
  *
  * For each target ("PS copy"):
- *   1. Find the Entra user for the same person: PeopleSoft email (latest import row)
- *      = Entra user's User ID or Email.
+ *   1. Find the Entra user for the same person, in this order:
+ *        a. MANUAL_MAP entry (confirmed pairs)
+ *        b. a user with a User ID and the same u_employee_id
+ *        c. PeopleSoft email (latest import row) = Entra user's User ID or Email
  *   2. MATCHED  -> re-point every reference (tasks, assets, approvals, groups, ...)
  *                  from the PS copy to the Entra user, copy u_employee_id onto the
  *                  Entra user, then delete the PS copy.
@@ -36,6 +38,10 @@ var SAMPLE = 10;
 // PeopleSoft). Fill from the "Review list" output after confirming each pair.
 //   'PS copy sys_id': 'Entra user sys_id'
 var MANUAL_MAP = {
+    // Uncomment each pair once confirmed as the same person:
+    // '56ff1d8f93e626100aae32d51bba1049': 'b1a0c20d93dbba1045f3b1266aba106c', // Demetrius Holmes -> Demetrius.Holmes@
+    // 'fbaf994f93e626100aae32d51bba10d4': '19d82c6593d9b6d045f3b1266aba10cd', // Chadwick Webster -> Chadwick.Webster@
+    // '6dffd98f93e626100aae32d51bba1080': '28a29fe797a4fd90cc467d021153af65', // Yolanda Brown -> Yolanda.Brown@ (not Brown2: different EMPLID)
 };
 
 var importTable = 'x_meug_peoplesof_0_peoplesoft_import';
@@ -94,6 +100,23 @@ ids.forEach(function (id) {
         }
         c.reason = 'manualMapInvalid';
     }
+
+    // Same employee ID on a user that has a User ID (e.g. Entra user already
+    // stamped, or inactive leavers no longer in the PeopleSoft feed)
+    var byEmp = new GlideRecord('sys_user');
+    byEmp.addQuery('u_employee_id', c.emplid);
+    byEmp.addNotNullQuery('user_name');
+    byEmp.addQuery('sys_id', '!=', id);
+    byEmp.orderByDesc('active');
+    byEmp.setLimit(1);
+    byEmp.query();
+    if (byEmp.next()) {
+        c.survivor = byEmp.getUniqueValue();
+        c.survivorUid = byEmp.getValue('user_name') + ' [same EMPLID]';
+        repointMap[id] = c.survivor;
+        return;
+    }
+
     var row = new GlideRecord(importTable);
     row.addQuery('u_emplid', c.emplid);
     row.orderByDesc('sys_created_on');
@@ -277,7 +300,8 @@ review.forEach(function (id) {
         out.push('      candidate: ' + cand.getValue('user_name') + ' (' + cand.getUniqueValue() + ')' +
             ' | active=' + cand.getValue('active') +
             ' | emplid=' + (cand.getValue('u_employee_id') || '-') +
-            ' | created_by=' + cand.getValue('sys_created_by'));
+            ' | created_by=' + cand.getValue('sys_created_by') +
+            (cand.getValue('u_employee_id') && cand.getValue('u_employee_id') !== c.emplid ? '  <-- different EMPLID: different person' : ''));
     }
 });
 
