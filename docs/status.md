@@ -27,6 +27,9 @@ Final report before execute (dev, 2026-10-29 10:29): 92 matched (merge), 3,023 u
 
 Test batch executed (dev, 2026-10-29 10:34, MAX_USERS=25): 25 users deleted, 29 owned records deleted, references re-pointed (task.opened_by, asmt_assessment_instance.user). Includes merges for Tiffany Gates, Victoria Hafele, Kelsey Brooks, Stephanie Johnson.
 
+Full cleanup executed (dev, 2026-10-29, finished 11:49 ET): 3,090 users deleted (88 merged into Entra users + 3,002 unreferenced), 606 references re-pointed, 3 employee IDs copied (manual pairs), 3,163 owned records deleted. 19 kept by design (different person / no Entra account).
+Next in dev: confirm 19 remain, re-run confirm_root_cause.js, run the import again and validate_import_run.js.
+
 ## Open items
 1. ~~Delete stray transform script `e3ef5094…`~~ — **done** (DELETE captured in update set, reviewed 2026-10-28).
 2. **Data source connection failing in dev** (blocks testing):
