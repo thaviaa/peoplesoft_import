@@ -20,7 +20,7 @@ _Last updated: 2026-10-28_
 3,134 PS copies (blank User ID): 41 matched to Entra user by email; 3,065 unmatched with no references (delete); 28 unmatched with references (review).
 Unmatched reasons: 3,044 no email in PeopleSoft, 49 EMPLID not in import set.
 Every copy had an auto-created `cmn_notif_device`; now treated as owned by the user and deleted with it.
-Review of the 28: 6 share the EMPLID with an Entra user (now auto-matched); Demetrius Holmes, Chadwick Webster, Yolanda Brown pending confirmation in `MANUAL_MAP`; 19 are different people / no Entra account and are kept.
+Review of the 28: 6 share the EMPLID with an Entra user (now auto-matched); Demetrius Holmes, Chadwick Webster, Yolanda Brown confirmed and added to `MANUAL_MAP`; 19 are different people / no Entra account and are kept.
 Follow-up: 3,044 PeopleSoft rows have no email, so the import can't match those people to Entra users. Needs PeopleSoft to send email or Entra to stamp employee ID.
 
 ## Open items

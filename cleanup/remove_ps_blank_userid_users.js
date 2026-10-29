@@ -38,10 +38,10 @@ var SAMPLE = 10;
 // PeopleSoft). Fill from the "Review list" output after confirming each pair.
 //   'PS copy sys_id': 'Entra user sys_id'
 var MANUAL_MAP = {
-    // Uncomment each pair once confirmed as the same person:
-    // '56ff1d8f93e626100aae32d51bba1049': 'b1a0c20d93dbba1045f3b1266aba106c', // Demetrius Holmes -> Demetrius.Holmes@
-    // 'fbaf994f93e626100aae32d51bba10d4': '19d82c6593d9b6d045f3b1266aba10cd', // Chadwick Webster -> Chadwick.Webster@
-    // '6dffd98f93e626100aae32d51bba1080': '28a29fe797a4fd90cc467d021153af65', // Yolanda Brown -> Yolanda.Brown@ (not Brown2: different EMPLID)
+    // Confirmed same person (2026-10-29):
+    '56ff1d8f93e626100aae32d51bba1049': 'b1a0c20d93dbba1045f3b1266aba106c', // Demetrius Holmes -> Demetrius.Holmes@
+    'fbaf994f93e626100aae32d51bba10d4': '19d82c6593d9b6d045f3b1266aba10cd', // Chadwick Webster -> Chadwick.Webster@
+    '6dffd98f93e626100aae32d51bba1080': '28a29fe797a4fd90cc467d021153af65'  // Yolanda Brown -> Yolanda.Brown@ (not Brown2: different EMPLID)
 };
 
 var importTable = 'x_meug_peoplesof_0_peoplesoft_import';
