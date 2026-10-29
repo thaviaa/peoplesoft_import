@@ -52,18 +52,18 @@ Optional count tile for a dashboard: same condition, Type = **Single Score**, na
 
 ## 3b. Alternative: Platform Analytics Workspace (Visualization designer)
 
-The designer treats **Sys ID** as a string field, so it does not offer **is (dynamic)**. Use a script value instead:
+The designer treats **Sys ID** as a plain string field, so it offers neither **is (dynamic)** nor **is one of**.
+Use a **predefined condition** (Report Source) that stores the script filter instead:
 
-1. Add data source → table **User [sys_user]**.
-2. In **Filters → Conditions**: Field **Sys ID** · Operator **is one of** (top of the operator list) ·
-   Value `javascript:new DuplicateUserUtil().getEntraDuplicateIds()`
+1. Run [`servicenow/create_report_source.js`](../servicenow/create_report_source.js) once in Scripts - Background
+   (Global scope, update set selected). It creates Report Source **Entra duplicate users** on sys_user with filter
+   `sys_idINjavascript:new DuplicateUserUtil().getEntraDuplicateIds()`.
+2. Add data source → table **User [sys_user]**. Under **Predefined conditions**, select **Entra duplicate users**.
 3. **Run**: the preview count should drop from all users (~14,000) to the duplicate set (a few hundred).
-4. Optional: **Save as predefined condition** so other visualizations can reuse it.
-5. **Add this source**, then pick a List visualization and the columns above.
+4. **Add this source**, then pick a List visualization and the columns above.
 
 If the count doesn't drop, confirm the Script Include is **Client callable / Sandbox enabled** and
-**Accessible from: All application scopes**. If the designer still won't evaluate it, use the classic report (step 3),
-which accepts the same `javascript:` value with **is one of**.
+**Accessible from: All application scopes**.
 
 ## Notes
 

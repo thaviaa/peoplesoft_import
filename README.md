@@ -51,6 +51,7 @@ transform/
   name_source_script.js      Proposed Name map: preferred first + last
 servicenow/
   DuplicateUserUtil.js       Script Include behind the Entra duplicate report filter
+  create_report_source.js    Creates the "Entra duplicate users" predefined condition (Report Source)
 cleanup/
   remove_ps_blank_userid_users.js  Re-point refs to Entra user, then delete PS blank-User-ID copies
 diagnostics/                 Background scripts (read-only)
