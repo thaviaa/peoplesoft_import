@@ -17,7 +17,9 @@ DuplicateUserUtil.prototype = {
         var ids = {};
         this._collect('u_employee_id', ids);
         this._collect('email', ids);
-        return Object.keys(ids);
+        // Comma-separated string: works in list filters, report sources and
+        // Platform Analytics data sources (some reject arrays and show "IN NULL").
+        return Object.keys(ids).join(',');
     },
 
     _collect: function (field, ids) {

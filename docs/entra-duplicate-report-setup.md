@@ -62,8 +62,14 @@ Use a **predefined condition** (Report Source) that stores the script filter ins
 3. **Run**: the preview count should drop from all users (~14,000) to the duplicate set (a few hundred).
 4. **Add this source**, then pick a List visualization and the columns above.
 
-If the count doesn't drop, confirm the Script Include is **Client callable / Sandbox enabled** and
-**Accessible from: All application scopes**.
+If the conditions show **Sys ID in NULL** or the count is 0, the script returned nothing in the filter context:
+
+1. Confirm the Script Include exists with the exact name `DuplicateUserUtil`, **Active**, Global scope,
+   **Accessible from: All application scopes**, and **Sandbox enabled** checked (on some releases also
+   **Client callable**). Filters only run Script Includes that are sandbox enabled.
+2. Test in Scripts - Background: `gs.info(new DuplicateUserUtil().getEntraDuplicateIds().split(',').length);`
+   It should print a few hundred.
+3. Re-select the predefined condition and **Run**.
 
 ## Notes
 
