@@ -1,0 +1,45 @@
+﻿ID,Work Item Type,Title,Test Step,Step Action,Step Expected,Area Path,Assigned To,State
+,Test Case,269768 TC-01 Update sets commit cleanly,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Retrieve both 269768 update sets in Test and Preview each.,No preview errors or collisions.,,,
+,,,2,"Commit '269768 - Duplicate sys_user records created by PeopleSoft user import', then '269768 - Duplicate Report'.",Both update sets show Committed.,,,
+,Test Case,269768 TC-02 Employee transform field maps,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Open Transform Maps > Peoplesoft Employee import > Field Maps.,Only [Script] > sys_id has Coalesce checked (Use source script).,,,
+,,,2,Check u_emplid and u_emailid field maps.,"u_emplid > u_employee_id exists, Coalesce unchecked. No field map from u_emailid.",,,
+,,,3,Check name and first_name maps.,[Script] > name builds preferred first + last; [Script] > first_name prefers u_pref_first_name.,,,
+,Test Case,269768 TC-03 Employee transform scripts,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Open the Transform Scripts related list on the same map.,onBefore 90 active (update-only); onBefore 100 (4e2c5070c3b01a1057c46625990131af) inactive; 110 and 120 active; no other order-100 script.,,,
+,Test Case,269768 TC-04 Load and pick email-match test users,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Data source Peoplesoft import > Load All Records. Do not transform yet.,Import set created with rows loaded.,,,
+,,,2,Run the TC-04 candidate script from docs/qa-test-plan.md (Global).,Up to 5 EMPLID > User ID candidates listed (0 is acceptable; TC-08 then N/A).,,,
+,,,3,Run the transform (all three Peoplesoft maps).,Transform completes.,,,
+,Test Case,"269768 TC-05 No users inserted, no errors",,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Run diagnostics/validate_import_run.js (Global).,"Section 1: inserted = 0, error = 0. Section 3: no users created by the import.",,,
+,,,2,Open the import set > Transform Histories > Peoplesoft Employee import.,"Inserts = 0, Errors = 0.",,,
+,Test Case,269768 TC-06 User ID and Email not changed by the import,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Read section 4 of validate_import_run.js output.,None: no user_name or email changes since the import started.,,,
+,Test Case,269768 TC-07 Preferred name,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Find an import row where PREF_FIRST_NAME differs from FIRST_NAME and open the user with that Employee ID.,First name = PREF_FIRST_NAME; Name = preferred first + last (e.g. Scott Newell); Location = DESCR.,,,
+,Test Case,269768 TC-08 Email fallback match,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Open each TC-04 candidate user.,Employee ID = EMPLID; Location/Department/Business unit populated; User ID and Email unchanged; one user with that Employee ID. N/A if no candidates.,,,
+,Test Case,"269768 TC-09 Unmatched rows are skipped, not inserted",,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Filter import set rows: Comment starts with 'Skipped: no matching'. Pick 3 and search sys_user for their EMPLID.,Rows are ignored; no user created for those EMPLIDs by this run.,,,
+,Test Case,269768 TC-10 Cleanup report mode,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Run cleanup/remove_ps_blank_userid_users.js with MODE = 'report' and MANUAL_MAP = {} (Global).,Output says 'no changes made'; bucket counts add up to total PS copies = baseline blank User ID count.,,,
+,Test Case,269768 TC-11 Cleanup review list,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Send review-list entries with one candidate and no 'different EMPLID' flag to the ServiceNow team; add confirmed pairs to MANUAL_MAP; rerun report.,Confirmed pairs move to Matched; the rest stay in 'has references' and are kept.,,,
+,Test Case,269768 TC-12 Cleanup test batch,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,"Confirm XML backup exists. Run with MODE = 'execute', MAX_USERS = 25.",Executed line shows users deleted <= 25; no script errors.,,,
+,Test Case,269768 TC-13 Spot-check a merge,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Open sys_user.do?sys_id=<PS copy sys_id> from Sample matched.,Record not found.,,,
+,,,2,Open the Entra user for that pair.,Has the Employee ID; tickets/requests/assets now point to it; only one user with that Employee ID.,,,
+,Test Case,269768 TC-14 Cleanup full run,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Run with MAX_USERS = 0 as a Fix Script > Proceed in Background; read summary in Script Log Statements.,Users deleted = matched + unmatched (no refs) less the TC-12 batch.,,,
+,,,2,Run diagnostics/confirm_root_cause.js.,Blank User ID = TC-10 'has references' count; Employee IDs on 2+ users lower than baseline.,,,
+,Test Case,269768 TC-15 Deleted users are not recreated,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Run a fresh import (Load All Records + transform) or Reprocess the TC-04 import set; run validate_import_run.js and confirm_root_cause.js.,"Inserted = 0, error = 0; no identity changes; skipped count higher than TC-05; blank User ID unchanged from TC-14.",,,
+,Test Case,"269768 TC-16 Location, Business Unit and Department still update",,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,Check Transform Histories for Peoplesoft Location Import and Peoplesoft Business Unit; compare 3 matched users to their import rows.,"Errors = 0; Location = DESCR, Business unit = DEPTID, Department matches AGENCY.",,,
+,Test Case,269768 TC-17 Entra duplicate users report,,,,ITS - ServiceNow\ITPMO – ITS ServiceNow Operational FY26,,Design
+,,,1,"Run gs.info(new DuplicateUserUtil().getEntraDuplicateIds().split(',').length); (Global).",A count is printed.,,,
+,,,2,Open sys_user_list.do?sysparm_query=sys_idINjavascript:new DuplicateUserUtil().getEntraDuplicateIds(),Same count.,,,
+,,,3,Open the Entra duplicate users visualization (or predefined condition) in Platform Analytics.,Same count; every row has a User ID.,,,
