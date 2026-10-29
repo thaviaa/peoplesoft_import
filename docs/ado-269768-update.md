@@ -33,7 +33,6 @@ No User ID or email changes made by the import. Spot check EMPLID 108673 (Scott 
 2. Promote to prod: the 269768 transform update set and "269768 - Duplicate Report" (Script Include DuplicateUserUtil, Report Source, report).
 3. Prod cleanup: XML backup, run in report mode, review, rebuild MANUAL_MAP with prod sys_ids, test batch, then full run.
 4. Identity team dependencies:
-   - Remove first name, last name and name from the Entra → ServiceNow mappings. Needed before or with prod, otherwise Entra overwrites the preferred names.
    - Resolve the remaining 137 Entra-side duplicate Employee IDs (353 records) using the "Entra duplicate users" report. Track as a separate item.
    - Optional: send employeeId to `u_employee_id` (about 3,000 PeopleSoft rows have no email, so they can't be matched today).
 

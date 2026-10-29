@@ -66,13 +66,9 @@ PeopleSoft's email is still used, but only as a **matching key**: [`sys_id_coale
 
 Because the import is update-only (step 4), PeopleSoft no longer creates users with a blank User ID. Someone in PeopleSoft without an Entra account is skipped until Entra provisions them; the next import run then matches them by email and sets their location and employee ID.
 
-## 5a. Stop Entra from writing names
+## 5a. Names
 
-PeopleSoft owns names (it has the preferred first name). If Entra also writes them, the two syncs overwrite each other ("Bob" ↔ "Robert").
-
-1. Find where Entra → ServiceNow user provisioning maps attributes (Entra enterprise app **Provisioning → Attribute mappings**, or the ServiceNow-side transform if the sync lands through an import set).
-2. Remove or disable the mappings to `first_name`, `last_name` and `name`.
-3. Keep Entra's mappings for `user_name`, `email` and anything else not listed under PeopleSoft in the [field ownership table](../README.md#field-ownership-one-writer-per-field).
+PeopleSoft sets the preferred first name (`u_pref_first_name`); Entra has no preferred-name attribute, so names come from the PeopleSoft import.
 
 ### Replace the Name field map
 

@@ -14,7 +14,7 @@ Pulls employee, location and business unit data from PeopleSoft into ServiceNow.
 | First name (preferred), Last name, Name | PeopleSoft |
 | Employee ID, Location, Building, Department, Business unit | PeopleSoft |
 
-PeopleSoft owns names because it carries the preferred first name (`u_pref_first_name`). Entra provisioning must **not** write `first_name`, `last_name` or `name`.
+PeopleSoft owns names because it carries the preferred first name (`u_pref_first_name`); Entra has no preferred-name attribute. The PeopleSoft import sets First name, Last name and Name.
 
 ## Data source
 
