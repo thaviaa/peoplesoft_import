@@ -16,6 +16,12 @@ _Last updated: 2026-10-28_
   - Stray onBefore 100 with pasted coalesce code deleted (`e3ef5094…`)
 - Update set reviewed: 7 records, all match the build guide.
 
+## Cleanup report (dev, 2026-10-29)
+3,134 PS copies (blank User ID): 41 matched to Entra user by email; 3,065 unmatched with no references (delete); 28 unmatched with references (review).
+Unmatched reasons: 3,044 no email in PeopleSoft, 49 EMPLID not in import set.
+Every copy had an auto-created `cmn_notif_device`; now treated as owned by the user and deleted with it.
+Next: review the 28 with same-name candidates, fill `MANUAL_MAP`, then execute in batches.
+
 ## Open items
 1. ~~Delete stray transform script `e3ef5094…`~~ — **done** (DELETE captured in update set, reviewed 2026-10-28).
 2. **Data source connection failing in dev** (blocks testing):
