@@ -41,6 +41,7 @@ PeopleSoft owns names because it carries the preferred first name (`u_pref_first
 docs/
   status.md                  Current status, open items, handoff
   ado-269768-update.md       Progress update posted to ADO 269768
+  qa-test-plan.md            QA test plan for the Test environment (TC-01 to TC-17)
   build-guide.md             Step-by-step fix for the Employee transform map
   root-cause-analysis.md     Duplicate sys_user defect — cause, fix, cleanup plan
   current-config.md          Employee transform map as configured today

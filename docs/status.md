@@ -40,7 +40,7 @@ bucket_duplicates.js after cleanup (dev, 12:15 ET), duplicate names: sameEmpId 9
 - psEntraSplit: Diana Carter, Donald Smith, Emily Cook, Leslie Johnson are among the 19 kept (different people). Kathy Pond, Marvin Stroud, Tommy Simmons have a blank-User-ID record with no Employee ID, from another source; check sys_created_by.
 - likelyDifferent (267): no shared identifiers; leave.
 
-QA test plan for the Test environment (17 test cases): https://claude.ai/artifact/AHqZxcj6HDbwredC2jDBWg
+QA test plan for the Test environment (17 test cases): [qa-test-plan.md](qa-test-plan.md)
 
 ## Open items
 1. ~~Delete stray transform script `e3ef5094…`~~ — **done** (DELETE captured in update set, reviewed 2026-10-28).
