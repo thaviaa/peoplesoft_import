@@ -36,6 +36,15 @@ For an always-current list in ServiceNow, see [entra-duplicate-report-setup.md](
    - If it is still provisioned, fix it in Entra first, otherwise provisioning will keep updating or recreating it.
 3. Whether the retiring ServiceNow record should be deprovisioned by Entra (preferred) or deactivated by the ServiceNow team.
 
+## Other asks for the Identity team
+
+1. **Stop provisioning names.** PeopleSoft owns First name, Last name and Name in ServiceNow (it carries the
+   preferred first name). Remove `first_name`, `last_name` and `name` from the Entra → ServiceNow attribute
+   mappings so the two syncs don't overwrite each other. User ID and Email stay with Entra.
+2. **Optional: send Employee ID.** About 3,000 PeopleSoft rows have no email, so the import can't match those
+   people to their Entra user. If Entra provisioning writes `employeeId` to ServiceNow `u_employee_id`, the
+   import matches on it directly.
+
 ## ServiceNow side (after Identity confirms)
 
 - Re-point tickets, assets, groups and approvals from RETIRE to KEEP (same approach as
