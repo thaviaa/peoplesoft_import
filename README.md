@@ -43,6 +43,7 @@ docs/
   build-guide.md             Step-by-step fix for the Employee transform map
   root-cause-analysis.md     Duplicate sys_user defect — cause, fix, cleanup plan
   current-config.md          Employee transform map as configured today
+  entra-duplicates-handoff.md  Follow-up for the Identity team: Entra-side duplicate users
 transform/
   sys_id_coalesce.js         Proposed scripted coalesce (emplid → email fallback)
   onBefore_update_only.js    Proposed onBefore: never insert users (Entra owns identities)
@@ -55,6 +56,7 @@ diagnostics/                 Background scripts (read-only)
   confirm_root_cause.js
   pair_ps_entra_records.js
   validate_import_run.js
+  entra_duplicate_report.js  CSV of same-person Entra duplicates for the Identity team
   dump_transform_maps.js
 ```
 

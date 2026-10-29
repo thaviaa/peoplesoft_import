@@ -36,7 +36,7 @@ Remaining 137 duplicate employee IDs are between users that both have a User ID 
 validate_import_run.js on ISET0056262 (import run 09:24 ET, before cleanup): inserted 0, error 0, updated 98, ignored 2,083 (unchanged rows), 72 skipped by update-only guard, no new users, no User ID/Email changes. Spot check EMPLID 108673 = Scott Newell, one record, preferred name and location correct. Import still to be re-run after cleanup.
 
 bucket_duplicates.js after cleanup (dev, 12:15 ET), duplicate names: sameEmpId 97, sameEmail 30, psEntraSplit 7, likelyDifferent 267.
-- sameEmpId + sameEmail (127 names): same person with two records that both have a User ID (Entra-side duplicates: UPN change, rehire). Out of scope for 269768; proposed follow-up item.
+- sameEmpId + sameEmail (127 names): same person with two records that both have a User ID (Entra-side duplicates: UPN change, rehire). Out of scope for 269768; owned by the Identity team. Handoff: [entra-duplicates-handoff.md](entra-duplicates-handoff.md), list from `diagnostics/entra_duplicate_report.js`.
 - psEntraSplit: Diana Carter, Donald Smith, Emily Cook, Leslie Johnson are among the 19 kept (different people). Kathy Pond, Marvin Stroud, Tommy Simmons have a blank-User-ID record with no Employee ID, from another source; check sys_created_by.
 - likelyDifferent (267): no shared identifiers; leave.
 
