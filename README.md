@@ -52,6 +52,7 @@ diagnostics/                 Background scripts (read-only)
   bucket_duplicates.js
   confirm_root_cause.js
   pair_ps_entra_records.js
+  validate_import_run.js
   dump_transform_maps.js
 ```
 

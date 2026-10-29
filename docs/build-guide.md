@@ -84,23 +84,22 @@ PeopleSoft's `NAME_DISPLAY` is the legal name with the nickname in quotes. Examp
 
 ## 6. Test in dev
 
-1. Pick 3–5 known duplicate people (from [`bucket_duplicates.js`](../diagnostics/bucket_duplicates.js) `sameEmpId` / `psEntraSplit`) and note their sys_ids.
-2. Data Source **Peoplesoft import** → **Test Load 20 Records**, then run the transform.
-3. Check the import set rows (`x_meug_peoplesof_0_peoplesoft_import_list`): `sys_import_state` should be **updated** for existing people, not **inserted**.
-4. Run **Load All Records** and transform.
-5. Re-run `confirm_root_cause.js`. Counts must not increase vs. the baseline.
-6. Verify no new users: `sys_user_list.do?sysparm_query=sys_created_onONToday@javascript:gs.beginningOfToday()@javascript:gs.endOfToday()^sys_created_by=<import user>`
-7. Spot-check that the test users' location, department, business unit, and name updated correctly on the **surviving** record.
+1. Run the import: Data Source **Peoplesoft import** → **Load All Records**, then transform.
+2. Run [`diagnostics/validate_import_run.js`](../diagnostics/validate_import_run.js) in **Global** scope (it reads `sys_audit`). Add a few known duplicate EMPLIDs to `SPOT_EMPLIDS` first.
+3. Check the import set's **Transform History** related list: the **Peoplesoft Employee import** run should show **Inserts = 0** and **Errors = 0**.
+4. Re-run [`diagnostics/confirm_root_cause.js`](../diagnostics/confirm_root_cause.js). Compare to the baseline (224 / 3,134 / 848). The first two **must not increase**.
 
-### If the test load fails to connect (ORA-12505)
+| Check | Pass |
+|---|---|
+| Rows inserted | 0 |
+| Rows in error | 0 |
+| New sys_user created by the import user | 0 |
+| User ID / Email changed by the import user | 0 |
+| Spot check: Name = preferred first + last (EMPLID 108673 → `Scott Newell`) | ✅ |
+| Spot check: location matches PeopleSoft `DESCR` | ✅ |
+| Duplicate EMPLIDs (224) / blank User ID (3,134) | not increased |
 
-`ORA-12505: listener does not currently know of SID` happens at the JDBC connection, before any transform runs, so it is not caused by these changes. Compare the dev and prod **Peoplesoft import** data source records (MID Server, Server, Oracle SID, Connection URL). Clones often reset the MID Server or connection fields.
-
-To test the transform without a new load, reuse an existing import set:
-
-1. **System Import Sets → Import Sets**, filter Table = `x_meug_peoplesof_0_peoplesoft_import`.
-2. Open a recent Loaded/Processed set → **Transform** (or **Reprocess**) → select **Peoplesoft Employee import**.
-3. Expect rows to show **updated** (matched) or **ignored** (no match), never **inserted**.
+Existing duplicates will still show 2+ records per EMPLID until cleanup (step 7). That is expected.
 
 ## 7. Clean up existing duplicates
 
