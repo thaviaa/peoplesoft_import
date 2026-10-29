@@ -50,6 +50,18 @@ Optional: Schedule → weekly email to the Identity team.
 
 Optional count tile for a dashboard: same condition, Type = **Single Score**, name "Entra duplicate users (count)".
 
+## 3b. Alternative: Platform Analytics Workspace (Visualization designer)
+
+1. Add data source → table **User [sys_user]**.
+2. In **Filters → Conditions**: Field **Sys ID** · Operator **is (dynamic)** · Value **Entra duplicate users**.
+3. **Run**: the preview count should drop from all users (~14,000) to the duplicate set (a few hundred).
+4. Optional: **Save as predefined condition** so other visualizations can reuse it.
+5. **Add this source**, then pick a List visualization and the columns above.
+
+If **is (dynamic)** isn't offered on Sys ID, open the Dynamic Filter Option and check that it's Active and
+"Available for filter", and that the Field type matches what the designer expects for Sys ID
+(try Field type **Sys ID (GUID)** if Reference doesn't show). As a fallback, build the classic report in step 3.
+
 ## Notes
 
 - The filter is calculated when the report runs, so it updates as duplicates are fixed.
