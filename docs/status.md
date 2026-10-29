@@ -23,6 +23,8 @@ Every copy had an auto-created `cmn_notif_device`; now treated as owned by the u
 Review of the 28: 6 share the EMPLID with an Entra user (now auto-matched); Demetrius Holmes, Chadwick Webster, Yolanda Brown confirmed and added to `MANUAL_MAP`; 19 are different people / no Entra account and are kept.
 Follow-up: 3,044 PeopleSoft rows have no email, so the import can't match those people to Entra users. Needs PeopleSoft to send email or Entra to stamp employee ID.
 
+Final report before execute (dev, 2026-10-29 10:29): 92 matched (merge), 3,023 unmatched no refs (delete), 19 unmatched with refs (keep), 0 conflicts.
+
 ## Open items
 1. ~~Delete stray transform script `e3ef5094…`~~ — **done** (DELETE captured in update set, reviewed 2026-10-28).
 2. **Data source connection failing in dev** (blocks testing):
