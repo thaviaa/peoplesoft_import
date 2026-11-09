@@ -27,9 +27,9 @@ QA has the admin role. Run every script in **Scripts - Background** with scope s
 
 **Before testing**
 
-- [ ] Data source **Peoplesoft import** connects in Test: run **Test Load 20 Records**. (Data source settings are not in the update sets. An ORA-12505 error means the SID / Connection URL needs fixing first.)
-- [ ] Scheduled PeopleSoft import is paused during testing, so runs happen only when QA starts them.
-- [ ] XML backup taken of `sys_user_list.do?sysparm_query=user_nameISEMPTY^u_employee_idISNOTEMPTY` (list menu → Export → XML).
+- [x] Data source **Peoplesoft import** connects in Test: run **Test Load 20 Records**. (Data source settings are not in the update sets. An ORA-12505 error means the SID / Connection URL needs fixing first.)
+- [x] Scheduled PeopleSoft import is paused during testing, so runs happen only when QA starts them.
+- [x] XML backup taken of `sys_user_list.do?sysparm_query=user_nameISEMPTY^u_employee_idISNOTEMPTY` (list menu → Export → XML).
 
 **Scripts** (open the file, then **Raw**, and copy):
 
@@ -49,8 +49,8 @@ Run `confirm_root_cause.js` and fill in:
 | Metric | Dev (before fix) | Test baseline | Test after cleanup |
 | --- | --- | --- | --- |
 | Employee IDs on 2+ users | 224 | | |
-| Users with Employee ID but blank User ID | 3,134 | | |
-| Active users with User ID but no Employee ID | 848 | | |
+| Users with Employee ID but blank User ID | 3,134 | 3,142 | |
+| Active users with User ID but no Employee ID | 848 | 996 | |
 
 Also note 3–5 Employee IDs from `sys_user` that have two records (one with a blank User ID). Use them as spot-check users in TC-13.
 
@@ -63,7 +63,7 @@ Also note 3–5 Employee IDs from `sys_user` that have two records (one with a b
 
 Expected: no preview errors or collisions; both show **Committed**.
 
-- [ ] Pass
+- [x] Pass
 
 ### TC-02 Employee transform field maps
 
@@ -77,7 +77,7 @@ Expected:
 - There is **no** field map from `u_emailid` (no `u_emailid → user_name`, no `u_emailid → email`).
 - `[Script] → name` uses a source script (preferred first name + last name). `[Script] → first_name` still prefers `u_pref_first_name`.
 
-- [ ] Pass
+- [x] Pass
 
 ### TC-03 Employee transform scripts
 
@@ -94,7 +94,7 @@ Expected:
 
 No other onBefore at order 100 exists (a stray copy, sys_id `e3ef5094c3185f1457c466259901318b`, was deleted).
 
-- [ ] Pass
+- [x] Pass
 
 ## Import behaviour
 
@@ -126,7 +126,7 @@ gs.info('Import set ' + set.getValue('number') + ', email-match candidates: ' + 
 3. Record the import set number and the candidates (EMPLID → User ID). Zero candidates is acceptable; TC-08 is then N/A.
 4. Run the transform (all three Peoplesoft maps).
 
-- [ ] Done
+- [x] Done
 
 ### TC-05 No users inserted, no errors
 
@@ -135,13 +135,13 @@ gs.info('Import set ' + set.getValue('number') + ', email-match candidates: ' + 
 
 Expected: section 1 shows **inserted = 0** and **error = 0**; Transform History shows **Inserts = 0, Errors = 0**; section 3 lists no users created by the import.
 
-- [ ] Pass
+- [x] Pass
 
 ### TC-06 User ID and Email not changed by the import
 
 Expected: `validate_import_run.js` section 4 shows **none** (no `user_name` or `email` changes since the import started).
 
-- [ ] Pass
+- [x] Pass
 
 ### TC-07 Preferred name
 
@@ -150,7 +150,7 @@ Expected: `validate_import_run.js` section 4 shows **none** (no `user_name` or `
 
 Expected: First name = PREF_FIRST_NAME; Name = preferred first + last (`Scott Newell`, not `Michael "Scott" Newell`); Location = DESCR.
 
-- [ ] Pass
+- [x] Pass
 
 ### TC-08 Email fallback match
 
@@ -159,7 +159,7 @@ Expected: First name = PREF_FIRST_NAME; Name = preferred first + last (`Scott Ne
 Expected: Employee ID now equals the EMPLID; Location / Department / Business unit populated from PeopleSoft; User ID and Email unchanged; still only one user with that Employee ID.
 
 - [ ] Pass
-- [ ] N/A (no candidates)
+- [x] N/A (no candidates)
 
 ### TC-09 Unmatched rows are skipped, not inserted
 
@@ -168,7 +168,7 @@ Expected: Employee ID now equals the EMPLID; Location / Department / Business un
 
 Expected: the rows are in state **ignored**; no user was created for those EMPLIDs by this run.
 
-- [ ] Pass
+- [x] Pass
 
 ## Cleanup of PeopleSoft blank-User-ID users
 
